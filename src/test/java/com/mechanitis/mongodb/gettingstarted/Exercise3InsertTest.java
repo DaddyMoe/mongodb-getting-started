@@ -17,8 +17,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class Exercise3InsertTest {
+
     @Test
     public void shouldTurnAPersonIntoADBObject() {
+
         // Given
         Person bob = new Person("bob", "Bob The Amazing", new Address("123 Fake St", "LondonTown", 1234567890), asList(27464, 747854));
 
@@ -41,6 +43,7 @@ public class Exercise3InsertTest {
 
     @Test
     public void shouldBeAbleToSaveAPerson() throws UnknownHostException {
+
         // Given
         MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
         DB database = mongoClient.getDB("Examples");
@@ -50,6 +53,8 @@ public class Exercise3InsertTest {
 
         // When
         // TODO: insert Charlie into the collection
+
+        collection.insert(PersonAdaptor.toDBObject(charlie));
 
         // Then
         assertThat(collection.find().count(), is(1));

@@ -3,12 +3,7 @@ package com.mechanitis.mongodb.gettingstarted;
 import com.mechanitis.mongodb.gettingstarted.person.Address;
 import com.mechanitis.mongodb.gettingstarted.person.Person;
 import com.mechanitis.mongodb.gettingstarted.person.PersonAdaptor;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.mongodb.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,12 +16,14 @@ import static org.junit.Assert.assertThat;
 
 @SuppressWarnings("unchecked")
 public class Exercise4RetrieveTest {
+
     private DB database;
     private DBCollection collection;
+    private MongoClient mongoClient;
 
     @Before
     public void setUp() throws UnknownHostException {
-        MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+        mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
         database = mongoClient.getDB("Examples");
         collection = database.getCollection("people");
     }
@@ -39,7 +36,8 @@ public class Exercise4RetrieveTest {
 
         // When
         // TODO: get this from querying the collection.  Hint: you can find just one
-        DBObject result = null;
+        // DBObject result = collection.findOne(); // this works but too easy.
+        DBObject result = collection.find(new BasicDBObject().append("_id", "bob")).one();
 
         // Then
         assertThat((String) result.get("_id"), is("bob"));
@@ -56,7 +54,7 @@ public class Exercise4RetrieveTest {
 
         // When
         // TODO: get a cursor with everything in the database
-        DBCursor cursor = null;
+        DBCursor cursor = collection.find();
 
         // Then
         assertThat(cursor.size(), is(2));
@@ -76,7 +74,7 @@ public class Exercise4RetrieveTest {
 
         // When
         // TODO create the query document
-        DBObject query = null;
+        DBObject query = new BasicDBObject().append("_id", "bob");
         DBCursor cursor = collection.find(query);
 
         // Then
@@ -87,5 +85,6 @@ public class Exercise4RetrieveTest {
     @After
     public void tearDown() {
         database.dropDatabase();
-    }
+   			mongoClient.close();
+		}
 }

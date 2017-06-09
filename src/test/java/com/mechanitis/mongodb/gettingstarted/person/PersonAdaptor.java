@@ -1,5 +1,6 @@
 package com.mechanitis.mongodb.gettingstarted.person;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 /**
@@ -7,7 +8,18 @@ import com.mongodb.DBObject;
  * DBObject.
  */
 public final class PersonAdaptor {
-    public static final DBObject toDBObject(Person person) {
-        throw new UnsupportedOperationException("You need to implement this");
-    }
+
+	public static final DBObject toDBObject(Person person) {
+
+		DBObject dbObjectPerson = new BasicDBObject()
+				.append("_id", person.getId())
+				.append("name", person.getName())
+				.append("address", new BasicDBObject()
+						.append("street", person.getAddress().getStreet())
+						.append("city", person.getAddress().getTown())
+						.append("phone", person.getAddress().getPhone()))
+				.append("books", person.getBookIds());
+
+		return dbObjectPerson;
+	}
 }
