@@ -3,12 +3,7 @@ package com.mechanitis.mongodb.gettingstarted;
 import com.mechanitis.mongodb.gettingstarted.person.Address;
 import com.mechanitis.mongodb.gettingstarted.person.Person;
 import com.mechanitis.mongodb.gettingstarted.person.PersonAdaptor;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.WriteResult;
+import com.mongodb.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,25 +17,32 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class Exercise10UpdateByReplacementTest {
+
     private DB database;
     private DBCollection collection;
+    private MongoClient mongoClient;
 
     @Test
     public void shouldReplaceWholeDBObjectWithNewOne() {
         // Given
-        Person bob = new Person("bob", "Bob The Amazing", new Address("123 Fake St", "LondonTown", 1234567890), asList(27464, 747854));
+        Person bob = new Person("bob", "Bob The Amazing",
+            new Address("123 Fake St", "LondonTown", 1234567890),
+            asList(27464, 747854));
         collection.insert(PersonAdaptor.toDBObject(bob));
 
-        Person charlie = new Person("charlie", "Charles", new Address("74 That Place", "LondonTown", 1234567890), asList(1, 74));
+        Person charlie = new Person("charlie", "Charles",
+            new Address("74 That Place", "LondonTown", 1234567890),
+            asList(1, 74));
         collection.insert(PersonAdaptor.toDBObject(charlie));
 
         // When
-        Person updatedCharlieObject = new Person("charlie", "Charles the Suave", new Address("A new street", "GreatCity", 7654321),
+        Person updatedCharlieObject = new Person("charlie", "Charles the Suave",
+            new Address("A new street", "GreatCity", 7654321),
                                                  Collections.<Integer>emptyList());
         // TODO create query to find Charlie by ID
-        DBObject findCharlie = null;
+        DBObject findCharlie = new BasicDBObject("_id", "charlie");
         // TODO do an update replacing the whole previous Document with the new one
-        WriteResult resultOfUpdate = null;
+        WriteResult resultOfUpdate = collection.update(findCharlie, PersonAdaptor.toDBObject(updatedCharlieObject));
 
         // Then
         assertThat(resultOfUpdate.getN(), is(1));
@@ -58,7 +60,7 @@ public class Exercise10UpdateByReplacementTest {
 
     @Before
     public void setUp() throws UnknownHostException {
-        MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+        mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
         database = mongoClient.getDB("Examples");
         collection = database.getCollection("people");
     }
@@ -66,5 +68,6 @@ public class Exercise10UpdateByReplacementTest {
     @After
     public void tearDown() {
         database.dropDatabase();
+        mongoClient.close();
     }
 }

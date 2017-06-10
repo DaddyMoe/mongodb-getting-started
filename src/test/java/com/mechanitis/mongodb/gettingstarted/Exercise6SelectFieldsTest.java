@@ -3,12 +3,7 @@ package com.mechanitis.mongodb.gettingstarted;
 import com.mechanitis.mongodb.gettingstarted.person.Address;
 import com.mechanitis.mongodb.gettingstarted.person.Person;
 import com.mechanitis.mongodb.gettingstarted.person.PersonAdaptor;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.mongodb.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,9 +31,9 @@ public class Exercise6SelectFieldsTest {
 
         // When
         // TODO create the correct query to find Charlie by name (see above)
-        DBObject query = null;
+        DBObject query = new BasicDBObject().append("name", "Charles");
         // TODO use this query, combined with the "fields" selector, to get a list of result documents with only the name and ID fields
-        DBCursor results = null;
+        DBCursor results = collection.find(query, new BasicDBObject("_id", 1).append("name", 1));
 
         // Then
         assertThat(results.size(), is(1));
@@ -61,9 +56,9 @@ public class Exercise6SelectFieldsTest {
 
         // When
         // TODO create the correct query to find Charlie by name (see above)
-        DBObject query = null;
+        DBObject query = new BasicDBObject("name", "Charles");
         // TODO use this query, combined with the "fields" selector, to get a list of result documents without address subdocument
-        DBCursor results = null;
+        DBCursor results = collection.find(query, new BasicDBObject("address", 0));
 
         // Then
         assertThat(results.size(), is(1));

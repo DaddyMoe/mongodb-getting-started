@@ -23,28 +23,41 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class Exercise12UpdateMultipleDocumentsTest {
+
     private DB database;
     private DBCollection collection;
+    private MongoClient mongoClient;
 
     //Multi=false
     @Test
     public void shouldOnlyUpdateTheFirstDBObjectMatchingTheQuery() {
+
         // Given
-        Person bob = new Person("bob", "Bob The Amazing", new Address("123 Fake St", "LondonTown", 1234567890), asList(27464, 747854));
+        Person bob = new Person("bob", "Bob The Amazing",
+            new Address("123 Fake St", "LondonTown", 1234567890),
+            asList(27464, 747854));
+
+        Person charlie = new Person("charlie", "Charles",
+            new Address("74 That Place", "LondonTown", 1234567890),
+            asList(1, 74));
+
+        Person emily = new Person("emily", "Emily",
+            new Address("5", "Some Town", 646383),
+            Collections.<Integer>emptyList());
+
         collection.insert(PersonAdaptor.toDBObject(bob));
-
-        Person charlie = new Person("charlie", "Charles", new Address("74 That Place", "LondonTown", 1234567890), asList(1, 74));
         collection.insert(PersonAdaptor.toDBObject(charlie));
-
-        Person emily = new Person("emily", "Emily", new Address("5", "Some Town", 646383), Collections.<Integer>emptyList());
         collection.insert(PersonAdaptor.toDBObject(emily));
 
         // When
         // TODO create query to find everyone with 'LondonTown' as their city
-        DBObject findLondoners = null;
+        DBObject findLondoners = new BasicDBObject("address.city", "LondonTown");
         assertThat(collection.find(findLondoners).count(), is(2));
 
         // TODO update only the first Londonder here to have a new field, "wasUpdated", with a value of true
+        BasicDBObject wasUpdatedField = new BasicDBObject("wasUpdated", true);
+        BasicDBObject setNewFieldWasUpdated = new BasicDBObject("$set", wasUpdatedField);
+        collection.update(findLondoners, setNewFieldWasUpdated);
 
         
         // Then
@@ -73,10 +86,13 @@ public class Exercise12UpdateMultipleDocumentsTest {
 
         // When
         // TODO create query to find everyone with 'LondonTown' as their city
-        DBObject findLondoners = null;
+        DBObject findLondoners = new BasicDBObject("address.city", "LondonTown");
         assertThat(collection.find(findLondoners).count(), is(2));
 
-        // TODO update all Londonders here to have a new field, "wasUpdated", with a value of true
+        // TODO update all Londoners here to have a new field, "wasUpdated", with a value of true
+        BasicDBObject newField = new BasicDBObject("wasUpdated", true);
+        BasicDBObject setNewFieldCommand = new BasicDBObject("$set", newField);
+        collection.update(findLondoners, setNewFieldCommand, false, true);
 
         
         // Then
@@ -94,7 +110,7 @@ public class Exercise12UpdateMultipleDocumentsTest {
 
     @Before
     public void setUp() throws UnknownHostException {
-        MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+        mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
         database = mongoClient.getDB("Examples");
         collection = database.getCollection("people");
     }
@@ -102,5 +118,6 @@ public class Exercise12UpdateMultipleDocumentsTest {
     @After
     public void tearDown() {
         database.dropDatabase();
+        mongoClient.close();
     }
 }

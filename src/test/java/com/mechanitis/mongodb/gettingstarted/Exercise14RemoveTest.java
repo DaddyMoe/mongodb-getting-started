@@ -3,12 +3,7 @@ package com.mechanitis.mongodb.gettingstarted;
 import com.mechanitis.mongodb.gettingstarted.person.Address;
 import com.mechanitis.mongodb.gettingstarted.person.Person;
 import com.mechanitis.mongodb.gettingstarted.person.PersonAdaptor;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.WriteResult;
+import com.mongodb.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,20 +24,26 @@ public class Exercise14RemoveTest {
     @Test
     public void shouldDeleteOnlyCharlieFromTheDatabase() {
         // Given
-        Person bob = new Person("bob", "Bob The Amazing", new Address("123 Fake St", "LondonTown", 1234567890), asList(27464, 747854));
+        Person bob = new Person("bob", "Bob The Amazing",
+            new Address("123 Fake St", "LondonTown", 1234567890),
+            asList(27464, 747854));
         collection.insert(PersonAdaptor.toDBObject(bob));
 
-        Person charlie = new Person("charlie", "Charles", new Address("74 That Place", "LondonTown", 1234567890), asList(1, 74));
+        Person charlie = new Person("charlie", "Charles",
+            new Address("74 That Place", "LondonTown", 1234567890),
+            asList(1, 74));
         collection.insert(PersonAdaptor.toDBObject(charlie));
 
-        Person emily = new Person("emily", "Emily", new Address("5", "Some Town", 646383), Collections.<Integer>emptyList());
+        Person emily = new Person("emily", "Emily",
+            new Address("5", "Some Town", 646383),
+            Collections.<Integer>emptyList());
         collection.insert(PersonAdaptor.toDBObject(emily));
 
         // When
         // TODO create a query to find charlie by ID
-        DBObject query = null;
+        DBObject query = new BasicDBObject("_id", "charlie");
         // TODO execute the remove
-        WriteResult resultOfRemove = null;
+        WriteResult resultOfRemove = collection.remove(query);
 
         // Then
         assertThat(resultOfRemove.getN(), is(1));
@@ -69,9 +70,9 @@ public class Exercise14RemoveTest {
 
         // When
         // TODO create the query to check the city field inside the address subdocument for 'LondonTown'
-        DBObject query = null;
+        DBObject query = new BasicDBObject("address.city", "LondonTown");
         // TODO execute the remove
-        WriteResult resultOfRemove = null;
+        WriteResult resultOfRemove = collection.remove(query);
 
         // Then
         assertThat(resultOfRemove.getN(), is(2));

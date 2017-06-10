@@ -3,12 +3,7 @@ package com.mechanitis.mongodb.gettingstarted;
 import com.mechanitis.mongodb.gettingstarted.person.Address;
 import com.mechanitis.mongodb.gettingstarted.person.Person;
 import com.mechanitis.mongodb.gettingstarted.person.PersonAdaptor;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.WriteResult;
+import com.mongodb.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,27 +16,36 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class Exercise13UpsertTest {
+
     private DB database;
     private DBCollection collection;
+    private MongoClient mongoClient;
 
     //Upsert
     @Test
     public void shouldOnlyInsertDBObjectIfItDidNotExistWhenUpsertIsTrue() {
         // Given
-        Person bob = new Person("bob", "Bob The Amazing", new Address("123 Fake St", "LondonTown", 1234567890), asList(27464, 747854));
+        Person bob = new Person("bob", "Bob The Amazing",
+            new Address("123 Fake St", "LondonTown", 1234567890),
+            asList(27464, 747854));
         collection.insert(PersonAdaptor.toDBObject(bob));
 
-        Person charlie = new Person("charlie", "Charles", new Address("74 That Place", "LondonTown", 1234567890), asList(1, 74));
+        Person charlie = new Person("charlie", "Charles",
+            new Address("74 That Place", "LondonTown", 1234567890),
+            asList(1, 74));
         collection.insert(PersonAdaptor.toDBObject(charlie));
 
         // new person not in the database yet
-        Person claire = new Person("claire", "Claire", new Address("1", "Town", 836558493), Collections.<Integer>emptyList());
+        Person claire = new Person("claire", "Claire",
+            new Address("1", "Town", 836558493),
+            Collections.<Integer>emptyList());
 
         // When
         // TODO create query to find Claire by ID
-        DBObject findClaire = null;
+        DBObject findClaire = new BasicDBObject("_id", "claire");
+
         // TODO Perform an update with this new person to show it does NOT get added to the database
-        WriteResult resultOfUpdate = null;
+        WriteResult resultOfUpdate = collection.update(findClaire, PersonAdaptor.toDBObject(claire));
 
         // Then
         assertThat(resultOfUpdate.getN(), is(0));
@@ -51,7 +55,7 @@ public class Exercise13UpsertTest {
 
         // When
         // TODO Perform an update with this new person to show it DOES get added to the database
-        WriteResult resultOfUpsert = null;
+        WriteResult resultOfUpsert = collection.update(findClaire, PersonAdaptor.toDBObject(claire), true, false);
 
         // Then
         assertThat(resultOfUpsert.getN(), is(1));
@@ -63,7 +67,7 @@ public class Exercise13UpsertTest {
 
     @Before
     public void setUp() throws UnknownHostException {
-        MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+        mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
         database = mongoClient.getDB("Examples");
         collection = database.getCollection("people");
     }
@@ -71,5 +75,6 @@ public class Exercise13UpsertTest {
     @After
     public void tearDown() {
         database.dropDatabase();
+        mongoClient.close();
     }
 }

@@ -18,6 +18,7 @@ import static org.junit.Assert.assertThat;
 public class Exercise8SkipAndLimitTest {
     private DB database;
     private DBCollection collection;
+    private MongoClient mongoClient;
 
     @Test
     public void shouldReturnDBObjects3to9Of20DBObjectsUsingSkipAndLimit() {
@@ -28,7 +29,7 @@ public class Exercise8SkipAndLimitTest {
 
         // When
         // TODO no need for a query, just combine the find with the other operators available
-        DBCursor results = null;
+        DBCursor results = collection.find().skip(3).limit(7);
 
         // Then
         assertThat(results.size(), is(7));
@@ -43,7 +44,7 @@ public class Exercise8SkipAndLimitTest {
 
     @Before
     public void setUp() throws UnknownHostException {
-        MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+        mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
         database = mongoClient.getDB("Examples");
         collection = database.getCollection("people");
     }
@@ -51,5 +52,6 @@ public class Exercise8SkipAndLimitTest {
     @After
     public void tearDown() {
         database.dropDatabase();
+        mongoClient.close();
     }
 }

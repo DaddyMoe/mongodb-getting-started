@@ -61,5 +61,6 @@ public class Exercise3InsertTest {
 
         // Clean up
         database.dropDatabase();
+        mongoClient.close();
     }
 }
